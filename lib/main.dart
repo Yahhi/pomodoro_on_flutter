@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 
 void main() => runApp(new MyApp());
+
+const oneSec = const Duration(seconds:1);
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -43,17 +47,23 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
+  int duration = 0;
+  Timer counterSeconds;
 
-  void _incrementCounter() {
+  void handleTick() {
     setState(() {
-      // This call to setState tells the Flutter framework that something has
-      // changed in this State, which causes it to rerun the build method below
-      // so that the display can reflect the updated values. If we changed
-      // _counter without calling setState(), then the build method would not be
-      // called again, and so nothing would appear to happen.
-      _counter++;
+      duration++;
     });
+  }
+
+  void _startTimer() {
+    if (counterSeconds == null) {
+      counterSeconds = new Timer.periodic(oneSec, (Timer t) => handleTick());
+    } else if (counterSeconds.isActive){
+      counterSeconds.cancel();
+    } else {
+      counterSeconds = new Timer.periodic(oneSec, (Timer t) => handleTick());
+    }
   }
 
   @override
@@ -93,14 +103,14 @@ class _MyHomePageState extends State<MyHomePage> {
               'Seconds from start:',
             ),
             new Text(
-              '$_counter',
+              '$duration',
               style: Theme.of(context).textTheme.display1,
             ),
           ],
         ),
       ),
       floatingActionButton: new FloatingActionButton(
-        onPressed: _incrementCounter,
+        onPressed: _startTimer,
         tooltip: 'Increment',
         child: new Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
