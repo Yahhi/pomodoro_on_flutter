@@ -5,13 +5,16 @@ import 'package:flutter/material.dart';
 void main() => runApp(new MyApp());
 
 const oneSec = const Duration(seconds:1);
+const interval = const Duration(minutes: 1);
+const iconCancel = Icons.cancel;
+const iconStart = Icons.alarm;
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return new MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Pomodoro',
       theme: new ThemeData(
         // This is the theme of your application.
         //
@@ -23,7 +26,7 @@ class MyApp extends StatelessWidget {
         // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.blue,
       ),
-      home: new MyHomePage(title: 'Flutter Demo Home Page'),
+      home: new MyHomePage(title: 'Pomodoro timer'),
     );
   }
 }
@@ -47,23 +50,33 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int duration = 0;
+  int duration = interval.inSeconds;
   Timer counterSeconds;
+  Icon iconTimerStarter = new Icon(iconStart);
 
   void handleTick() {
     setState(() {
-      duration++;
+      duration--;
+      if (duration == 0) {
+        stopTimer();
+      }
     });
   }
 
-  void _startTimer() {
+  void _actionTimer() {
     if (counterSeconds == null) {
-      counterSeconds = new Timer.periodic(oneSec, (Timer t) => handleTick());
+      startTimer();
     } else if (counterSeconds.isActive){
-      counterSeconds.cancel();
+      stopTimer();
     } else {
-      counterSeconds = new Timer.periodic(oneSec, (Timer t) => handleTick());
+      startTimer();
     }
+  }
+
+  void _setIconForButton(Icon icon) {
+    setState(() {
+      iconTimerStarter = icon;
+    });
   }
 
   @override
@@ -100,20 +113,30 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             new Text(
-              'Seconds from start:',
-            ),
-            new Text(
-              '$duration',
+              '${duration~/60}:${duration%60}',
               style: Theme.of(context).textTheme.display1,
             ),
           ],
         ),
       ),
       floatingActionButton: new FloatingActionButton(
-        onPressed: _startTimer,
+        onPressed: _actionTimer,
         tooltip: 'Increment',
-        child: new Icon(Icons.add),
+        child: iconTimerStarter,
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  void startTimer() {
+    if (duration == 0) {
+      duration = interval.inSeconds;
+    }
+    counterSeconds = new Timer.periodic(oneSec, (Timer t) => handleTick());
+    _setIconForButton(new Icon(iconCancel));
+  }
+
+  void stopTimer() {
+    counterSeconds.cancel();
+    _setIconForButton(new Icon(iconStart));
   }
 }
