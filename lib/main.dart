@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 void main() => runApp(new MyApp());
 
@@ -50,14 +51,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int duration = interval.inSeconds;
+  DateTime duration = new DateTime.fromMicrosecondsSinceEpoch(interval.inMicroseconds);
   Timer counterSeconds;
   Icon iconTimerStarter = new Icon(iconStart);
+  DateFormat minutesSeconds = new DateFormat("ms");
 
   void handleTick() {
+    print(duration);
     setState(() {
-      duration--;
-      if (duration == 0) {
+      duration = duration.subtract(oneSec);
+      if (duration.millisecondsSinceEpoch == 0) {
         stopTimer();
       }
     });
@@ -113,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             new Text(
-              '${duration~/60}:${duration%60}',
+              '${minutesSeconds.format(duration)}',
               style: Theme.of(context).textTheme.display1,
             ),
           ],
@@ -128,8 +131,8 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   void startTimer() {
-    if (duration == 0) {
-      duration = interval.inSeconds;
+    if (duration.millisecondsSinceEpoch == 0) {
+      duration = new DateTime.fromMicrosecondsSinceEpoch(interval.inMicroseconds);
     }
     counterSeconds = new Timer.periodic(oneSec, (Timer t) => handleTick());
     _setIconForButton(new Icon(iconCancel));
