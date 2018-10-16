@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
@@ -9,6 +10,7 @@ const oneSec = const Duration(seconds:1);
 const interval = const Duration(minutes: 1);
 const iconCancel = Icons.cancel;
 const iconStart = Icons.alarm;
+const alarmAudioPath = "sound_alarm.mp3";
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -55,12 +57,14 @@ class _MyHomePageState extends State<MyHomePage> {
   Timer counterSeconds;
   Icon iconTimerStarter = new Icon(iconStart);
   DateFormat minutesSeconds = new DateFormat("ms");
+  static AudioCache player = new AudioCache();
 
   void handleTick() {
     print(duration);
     setState(() {
       duration = duration.subtract(oneSec);
       if (duration.millisecondsSinceEpoch == 0) {
+        player.play(alarmAudioPath);
         stopTimer();
       }
     });
@@ -141,5 +145,6 @@ class _MyHomePageState extends State<MyHomePage> {
   void stopTimer() {
     counterSeconds.cancel();
     _setIconForButton(new Icon(iconStart));
+
   }
 }
