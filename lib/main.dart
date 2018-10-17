@@ -2,9 +2,15 @@ import 'dart:async';
 
 import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:intl/intl.dart';
 
-void main() => runApp(new MyApp());
+FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
+
+void main() async {
+  flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
+  runApp(new MyApp());
+}
 
 const oneSec = const Duration(seconds:1);
 const interval = const Duration(minutes: 1);
@@ -59,12 +65,49 @@ class _MyHomePageState extends State<MyHomePage> {
   DateFormat minutesSeconds = new DateFormat("ms");
   static AudioCache player = new AudioCache();
 
+  @override
+  initState() {
+    super.initState();
+    // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
+    var initializationSettingsAndroid =
+    new AndroidInitializationSettings('alarm');
+    var initializationSettingsIOS = new IOSInitializationSettings();
+    var initializationSettings = new InitializationSettings(
+        initializationSettingsAndroid, initializationSettingsIOS);
+    flutterLocalNotificationsPlugin.initialize(initializationSettings,
+        selectNotification: onSelectNotification);
+  }
+
+  Future onSelectNotification(String payload) async {
+    if (payload != null) {
+      debugPrint('notification payload: ' + payload);
+    }
+
+    /*await Navigator.push(
+      context,
+      new MaterialPageRoute(builder: (context) => new SecondScreen(payload)),
+    );*/
+  }
+
+  Future _showNotification() async {
+    var androidPlatformChannelSpecifics = new AndroidNotificationDetails(
+        '120', 'your channel name', 'your channel description',
+        importance: Importance.Max, priority: Priority.High);
+    var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
+    var platformChannelSpecifics = new NotificationDetails(
+        androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
+    await flutterLocalNotificationsPlugin.show(
+        110, 'Pomodoro', 'Time is over! Let\'s have a rest!' , platformChannelSpecifics,
+        payload: 'item x');
+  }
+
   void handleTick() {
     print(duration);
     setState(() {
       duration = duration.subtract(oneSec);
       if (duration.millisecondsSinceEpoch == 0) {
-        player.play(alarmAudioPath);
+        //player.play(alarmAudioPath);
+        _showNotification();
         stopTimer();
       }
     });
