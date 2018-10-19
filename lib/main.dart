@@ -25,14 +25,6 @@ class MyApp extends StatelessWidget {
     return new MaterialApp(
       title: 'Pomodoro',
       theme: new ThemeData(
-        // This is the theme of your application.
-        //
-        // Try running your application with "flutter run". You'll see the
-        // application has a blue toolbar. Then, without quitting the app, try
-        // changing the primarySwatch below to Colors.green and then invoke
-        // "hot reload" (press "r" in the console where you ran "flutter run",
-        // or press Run > Flutter Hot Reload in IntelliJ). Notice that the
-        // counter didn't reset back to zero; the application is not restarted.
         primarySwatch: Colors.blue,
       ),
       home: new MyHomePage(title: 'Pomodoro timer'),
@@ -58,7 +50,7 @@ class MyHomePage extends StatefulWidget {
   _MyHomePageState createState() => new _MyHomePageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   DateTime duration = new DateTime.fromMicrosecondsSinceEpoch(interval.inMicroseconds);
   Timer counterSeconds;
   Icon iconTimerStarter = new Icon(iconStart);
@@ -68,9 +60,10 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     var initializationSettingsAndroid =
-    new AndroidInitializationSettings('alarm');
+      new AndroidInitializationSettings('alarm');
     var initializationSettingsIOS = new IOSInitializationSettings();
     var initializationSettings = new InitializationSettings(
         initializationSettingsAndroid, initializationSettingsIOS);
@@ -106,8 +99,18 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       duration = duration.subtract(oneSec);
       if (duration.millisecondsSinceEpoch == 0) {
-        //player.play(alarmAudioPath);
-        _showNotification();
+        if (_notification == null) {
+          makeNoise();
+        } else {
+          switch (_notification.index) {
+            case 0: // resumed
+              makeNoise();
+              break;
+            default:
+              _showNotification();
+              break;
+          }
+        }
         stopTimer();
       }
     });
@@ -189,5 +192,26 @@ class _MyHomePageState extends State<MyHomePage> {
     counterSeconds.cancel();
     _setIconForButton(new Icon(iconStart));
 
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  AppLifecycleState _notification;
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    setState(() {
+      debugPrint("state changed to " + state.index.toString());
+      _notification = state;
+    });
+  }
+
+  void makeNoise() {
+    debugPrint("zzzzz");
+    player.play(alarmAudioPath);
   }
 }
