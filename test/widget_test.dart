@@ -4,24 +4,21 @@
 // find child widgets in the widget tree, read text, and verify that the values of widget properties
 // are correct.
 
+import 'package:intl/intl.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+
 import 'package:simple_pomodoro/main.dart';
+import 'package:simple_pomodoro/timer_view_model_impl.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
+
+  testWidgets('Test on load timer is set to initial value', (WidgetTester tester) async {
     await tester.pumpWidget(new MyApp());
 
-    // Verify that our counter starts at 0.
-    expect(find.text('25:00'), findsOneWidget);
-
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
-
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    String whatToExpect = DateFormat.ms().format(TimerViewModelImpl.pomodoroTime);
+    expect(find.text(whatToExpect), findsOneWidget);
+    expect(find.byIcon(Icons.alarm), findsOneWidget);
   });
 }

@@ -9,7 +9,6 @@ import 'package:simple_pomodoro/timer_view_model_impl.dart';
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
 void main() async {
-  flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
   runApp(new MyApp());
 }
 
@@ -75,6 +74,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     var initializationSettingsIOS = new IOSInitializationSettings();
     var initializationSettings = new InitializationSettings(
         initializationSettingsAndroid, initializationSettingsIOS);
+    flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
         selectNotification: onSelectNotification);
   }
