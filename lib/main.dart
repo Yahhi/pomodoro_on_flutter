@@ -55,6 +55,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   String timeInWidget = DateFormat.ms().format(TimerViewModelImpl.pomodoroTime);
   static AudioCache player = new AudioCache();
   TimerViewModelImpl viewModel;
+  List<String> pomodoroFinishedItems = [];
 
   _MyHomePageState() {
     viewModel = new TimerViewModelImpl();
@@ -67,6 +68,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     viewModel.timerIsActive.listen(_setIconForButton);
     viewModel.timeIsOver.listen(informTimerFinished);
     viewModel.timeTillEndReadable.listen(secondChanger);
+    viewModel.finishedPomodoros.listen(showPomodoroList);
     WidgetsBinding.instance.addObserver(this);
     // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     var initializationSettingsAndroid =
@@ -161,6 +163,14 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
               '$timeInWidget',
               style: Theme.of(context).textTheme.display1,
             ),
+            new Expanded(
+              child: new ListView.builder(
+                itemCount: pomodoroFinishedItems.length,
+                itemBuilder: (BuildContext ctxt, int Index) {
+                  return new Text(pomodoroFinishedItems[Index]);
+                },
+              ),
+            ),
           ],
         ),
       ),
@@ -195,5 +205,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   void makeNoise() {
     debugPrint("zzzzz");
     player.play(alarmAudioPath);
+  }
+
+  void showPomodoroList(String event) {
+    setState(() {
+      pomodoroFinishedItems.add(event);
+    });
   }
 }

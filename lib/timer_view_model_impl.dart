@@ -12,12 +12,15 @@ class TimerViewModelImpl implements TimerViewModel {
   StreamController<bool> _timerStateActive;
   StreamController<bool> _timerIsEnded;
   StreamSubscription _timeSubscription;
+  StreamController<String> _finishedPomodoros;
 
   TimerViewModelImpl() {
     _timerStateActive = new StreamController();
     _timerStateActive.add(false);
     _timerIsEnded = new StreamController();
     _timeFormatted = new StreamController();
+    _finishedPomodoros = new StreamController();
+
     DateTime pomodoroTime = new DateTime.fromMicrosecondsSinceEpoch(pomodoroSize.inMicroseconds);
     _timeFormatted.add(DateFormat.ms().format(pomodoroTime));
     print(DateFormat.ms().format(pomodoroTime));
@@ -25,7 +28,7 @@ class TimerViewModelImpl implements TimerViewModel {
 
   static DateTime get pomodoroTime => new DateTime.fromMicrosecondsSinceEpoch(pomodoroSize.inMicroseconds);
 
-  static Stream<DateTime> timedCounter(Duration interval, Duration maxCount) {
+  Stream<DateTime> timedCounter(Duration interval, Duration maxCount) {
     StreamController<DateTime> controller;
     Timer timer;
     DateTime counter = new DateTime.fromMicrosecondsSinceEpoch(maxCount.inMicroseconds);
@@ -34,6 +37,8 @@ class TimerViewModelImpl implements TimerViewModel {
       counter = counter.subtract(oneSec);
       controller.add(counter); // Ask stream to send counter values as event.
       if (counter.millisecondsSinceEpoch == 0) {
+        DateTime now = new DateTime.now();
+        _finishedPomodoros.add(DateFormat.yMd().format(now) + " " + DateFormat.Hm().format(now));
         timer.cancel();
         controller.close(); // Ask stream to shut down and tell listeners.
       }
@@ -99,4 +104,7 @@ class TimerViewModelImpl implements TimerViewModel {
 
   @override
   Stream<String> get timeTillEndReadable => _timeFormatted.stream;
+
+  @override
+  Stream<String> get finishedPomodoros => _finishedPomodoros.stream;
 }
