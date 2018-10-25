@@ -1,11 +1,14 @@
 import 'dart:async';
 
 import 'package:intl/intl.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:simple_pomodoro/timer_view_model.dart';
 
 class TimerViewModelImpl implements TimerViewModel {
+  static const KEY_POMODORO_SIZE = "pomodoro_size";
   static const oneSec = const Duration(seconds:1);
-  static const pomodoroSize = const Duration(minutes: 1);
+  static const Duration pomodoroSizeDefault = const Duration(minutes: 25);
+  static Duration pomodoroSize = pomodoroSizeDefault;
 
   Stream<DateTime> _timer;
   StreamController<String> _timeFormatted = StreamController<String>.broadcast();
@@ -21,12 +24,11 @@ class TimerViewModelImpl implements TimerViewModel {
     _timeFormatted = new StreamController();
     _finishedPomodoros = new StreamController();
 
-    DateTime pomodoroTime = new DateTime.fromMicrosecondsSinceEpoch(pomodoroSize.inMicroseconds);
+    DateTime pomodoroTime = new DateTime.fromMicrosecondsSinceEpoch(pomodoroSizeDefault.inMicroseconds);
     _timeFormatted.add(DateFormat.ms().format(pomodoroTime));
-    print(DateFormat.ms().format(pomodoroTime));
-  }
 
-  static DateTime get pomodoroTime => new DateTime.fromMicrosecondsSinceEpoch(pomodoroSize.inMicroseconds);
+    _getDefaultPomodoroValue();
+  }
 
   Stream<DateTime> timedCounter(Duration interval, Duration maxCount) {
     StreamController<DateTime> controller;
@@ -80,6 +82,7 @@ class TimerViewModelImpl implements TimerViewModel {
   @override
   void changeTimerState() {
     if (_timeSubscription == null) {
+      _onTimeChange(new DateTime.fromMicrosecondsSinceEpoch(pomodoroSize.inMicroseconds));
       print("subscribe");
       _timer = timedCounter(oneSec, pomodoroSize);
       _timerIsEnded.add(false);
@@ -107,4 +110,14 @@ class TimerViewModelImpl implements TimerViewModel {
 
   @override
   Stream<String> get finishedPomodoros => _finishedPomodoros.stream;
+
+  void _getDefaultPomodoroValue() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    int value = prefs.getInt(KEY_POMODORO_SIZE) ?? 1;
+
+    pomodoroSize = new Duration(minutes: value);
+    DateTime pomodoroTime = new DateTime.fromMicrosecondsSinceEpoch(pomodoroSize.inMicroseconds);
+    _timeFormatted.add(DateFormat.ms().format(pomodoroTime));
+    _onTimeChange(pomodoroTime);
+  }
 }

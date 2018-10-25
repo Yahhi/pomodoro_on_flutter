@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:intl/intl.dart';
 import 'package:simple_pomodoro/timer_view_model_impl.dart';
 
 FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
@@ -52,7 +51,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   Icon iconTimerStart = new Icon(iconStart);
   Icon iconTimerPause = new Icon(iconCancel);
   Icon iconTimer;
-  String timeInWidget = DateFormat.ms().format(TimerViewModelImpl.pomodoroTime);
+  String timeInWidget = "";
   static AudioCache player = new AudioCache();
   TimerViewModelImpl viewModel;
   List<String> pomodoroFinishedItems = [];
