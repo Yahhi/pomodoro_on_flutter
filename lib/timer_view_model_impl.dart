@@ -117,7 +117,6 @@ class TimerViewModelImpl implements TimerViewModel {
 
     pomodoroSize = new Duration(minutes: value);
     DateTime pomodoroTime = new DateTime.fromMicrosecondsSinceEpoch(pomodoroSize.inMicroseconds);
-    _timeFormatted.add(DateFormat.ms().format(pomodoroTime));
     _onTimeChange(pomodoroTime);
   }
 }
