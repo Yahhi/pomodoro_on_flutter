@@ -4,6 +4,7 @@ import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:simple_pomodoro/menu_choice.dart';
+import 'package:simple_pomodoro/settings_keys.dart';
 import 'package:simple_pomodoro/timer_view_model_impl.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -27,7 +28,6 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   static const iconCancel = Icons.cancel;
   static const iconStart = Icons.alarm;
-  static const alarmAudioPath = "sound_alarm.mp3";
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
 
   Icon iconTimerStart = new Icon(iconStart);
@@ -58,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     WidgetsBinding.instance.addObserver(this);
     // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     var initializationSettingsAndroid =
-    new AndroidInitializationSettings('alarm');
+        new AndroidInitializationSettings('alarm');
     var initializationSettingsIOS = new IOSInitializationSettings();
     var initializationSettings = new InitializationSettings(
         initializationSettingsAndroid, initializationSettingsIOS);
@@ -112,8 +112,8 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     var iOSPlatformChannelSpecifics = new IOSNotificationDetails();
     var platformChannelSpecifics = new NotificationDetails(
         androidPlatformChannelSpecifics, iOSPlatformChannelSpecifics);
-    await flutterLocalNotificationsPlugin.show(
-        110, 'Pomodoro', 'Time is over! Let\'s have a rest!' , platformChannelSpecifics,
+    await flutterLocalNotificationsPlugin.show(110, 'Pomodoro',
+        'Time is over! Let\'s have a rest!', platformChannelSpecifics,
         payload: 'item x');
   }
 
@@ -141,19 +141,19 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
       appBar: new AppBar(
         title: new Text(widget.title),
         actions: <Widget>[
-        // action button
-        PopupMenuButton<Choice>(
-          onSelected: _select,
-          itemBuilder: (BuildContext context) {
-            return choices.map((Choice choice) {
-              return PopupMenuItem<Choice>(
-                value: choice,
-                child: Text(choice.title),
-              );
-            }).toList();
-          },
-        ),
-      ],
+          // action button
+          PopupMenuButton<Choice>(
+            onSelected: _select,
+            itemBuilder: (BuildContext context) {
+              return choices.map((Choice choice) {
+                return PopupMenuItem<Choice>(
+                  value: choice,
+                  child: Text(choice.title),
+                );
+              }).toList();
+            },
+          ),
+        ],
       ),
       body: new Center(
         child: new Column(
@@ -182,13 +182,11 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     );
   }
 
-  void _select(Choice choice) {
-    // Causes the app to rebuild with the new _selectedChoice.
-    setState(() {
-      if (choice.title == "Settings") {
-        Navigator.of(context).pushNamed("/settings");
-      }
-    });
+  void _select(Choice choice) async {
+    if (choice.title == "Settings") {
+      await Navigator.of(context).pushNamed("/settings");
+      viewModel.updateSettings();
+    }
   }
 
   void _actionTimer() {
@@ -213,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   void makeNoise() {
     debugPrint("zzzzz");
-    player.play(alarmAudioPath);
+    player.play(SettingsKeys.defaultAlarmAudioPath);
   }
 
   void showPomodoroList(String event) {
