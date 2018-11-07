@@ -1,4 +1,5 @@
-
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
 import 'package:flutter/material.dart';
 import 'package:simple_pomodoro/settings_screen.dart';
 import 'package:simple_pomodoro/timer_screen.dart';
@@ -8,6 +9,7 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  FirebaseAnalytics analytics = FirebaseAnalytics();
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -20,8 +22,9 @@ class MyApp extends StatelessWidget {
       routes: {
         '/settings': (context) => SettingsPage(),
       },
+      navigatorObservers: [
+        FirebaseAnalyticsObserver(analytics: analytics),
+      ],
     );
   }
 }
-
-
