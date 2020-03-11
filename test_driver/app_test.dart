@@ -1,9 +1,6 @@
-import 'dart:io';
-
 import 'package:flutter_driver/flutter_driver.dart';
-import 'package:test/test.dart';
 import 'package:intl/intl.dart';
-
+import 'package:test/test.dart';
 
 void main() {
   group("end-to-end test", () {
@@ -24,12 +21,13 @@ void main() {
       await driver.waitFor(fab);
       await driver.tap(fab);
 
-      sleep(const Duration(seconds: 1));
+      await Future.delayed(const Duration(seconds: 1));
 
       const pomodoroSize = const Duration(minutes: 1);
-      DateTime pomodoroTime = new DateTime.fromMicrosecondsSinceEpoch(pomodoroSize.inMicroseconds);
-      String timeAfterUpdate = DateFormat.ms().format(
-          pomodoroTime.subtract(Duration(seconds: 1)));
+      DateTime pomodoroTime =
+          new DateTime.fromMicrosecondsSinceEpoch(pomodoroSize.inMicroseconds);
+      String timeAfterUpdate =
+          DateFormat.ms().format(pomodoroTime.subtract(Duration(seconds: 1)));
       await driver.waitFor(find.text(timeAfterUpdate));
     });
   });

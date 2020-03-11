@@ -64,7 +64,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         initializationSettingsAndroid, initializationSettingsIOS);
     flutterLocalNotificationsPlugin = new FlutterLocalNotificationsPlugin();
     flutterLocalNotificationsPlugin.initialize(initializationSettings,
-        selectNotification: onSelectNotification);
+        onSelectNotification: onSelectNotification);
   }
 
   Future onSelectNotification(String payload) async {
