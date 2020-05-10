@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:simple_pomodoro/setting.dart';
-import 'package:simple_pomodoro/setting_saver.dart';
-import 'package:simple_pomodoro/settings_keys.dart';
+import 'package:simple_pomodoro/constants/settings_keys.dart';
+import 'package:simple_pomodoro/interfaces/setting_saver.dart';
+import 'package:simple_pomodoro/model/setting.dart';
 
 class SettingsViewModel implements SettingSaver {
   static const interruptionOptions = [
@@ -33,21 +33,21 @@ class SettingsViewModel implements SettingSaver {
         SettingsKeys.KEY_POMODORO_SIZE,
         "Pomodoro interval",
         Setting.TYPE_SELECT,
-        "${SettingsKeys.defaultIntervalSizeInMinutes} min");
-    intervalLength.possibleOptions = intervalOptions;
+        "${SettingsKeys.defaultIntervalSizeInMinutes} min",
+        possibleOptions: intervalOptions);
     settings[SettingsKeys.KEY_POMODORO_SIZE] = intervalLength;
 
     Setting melody = new Setting(
         SettingsKeys.KEY_ALARM_MELODY,
         "Finishing melody",
         Setting.TYPE_SELECT,
-        SettingsKeys.defaultAlarmAudioPath);
-    melody.possibleOptions = melodyOptions;
+        SettingsKeys.defaultAlarmAudioPath,
+        possibleOptions: melodyOptions);
     settings[SettingsKeys.KEY_ALARM_MELODY] = melody;
 
     Setting interruptions = new Setting(SettingsKeys.KEY_INTERRUPTIONS_ENABLED,
-        "Interruptions", Setting.TYPE_SWITCH, SettingsKeys.enabledText);
-    interruptions.possibleOptions = interruptionOptions;
+        "Interruptions", Setting.TYPE_SWITCH, SettingsKeys.enabledText,
+        possibleOptions: interruptionOptions);
     settings[SettingsKeys.KEY_INTERRUPTIONS_ENABLED] = interruptions;
 
     _getSettingsValues();

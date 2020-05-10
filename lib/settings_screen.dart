@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:simple_pomodoro/setting.dart';
-import 'package:simple_pomodoro/setting_widget.dart';
-import 'package:simple_pomodoro/setting_with_click.dart';
-import 'package:simple_pomodoro/setting_with_switch.dart';
-import 'package:simple_pomodoro/settings_view_model.dart';
+import 'package:simple_pomodoro/model/setting.dart';
+import 'package:simple_pomodoro/viewmodels/settings_view_model.dart';
+import 'package:simple_pomodoro/widgets/setting_widget.dart';
+import 'package:simple_pomodoro/widgets/setting_with_click.dart';
+import 'package:simple_pomodoro/widgets/setting_with_switch.dart';
 
 class SettingsPage extends StatefulWidget {
   final String title = "Settings";

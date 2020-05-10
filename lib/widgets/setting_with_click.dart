@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:simple_pomodoro/setting.dart';
-import 'package:simple_pomodoro/setting_saver.dart';
-import 'package:simple_pomodoro/setting_widget.dart';
+import 'package:simple_pomodoro/interfaces/setting_saver.dart';
+import 'package:simple_pomodoro/model/setting.dart';
+import 'package:simple_pomodoro/widgets/setting_widget.dart';
 
 class SettingWithClick extends SettingWidget {
   SettingWithClickState state;

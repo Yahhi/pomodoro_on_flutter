@@ -1,8 +1,11 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_driver/driver_extension.dart';
 import 'package:simple_pomodoro/main.dart' as app;
 
 void main() {
   // This line enables the extension
+
+  WidgetsFlutterBinding.ensureInitialized();
   enableFlutterDriverExtension();
 
   // Call the `main()` function of your app or call `runApp` with any widget you

@@ -3,9 +3,9 @@ import 'dart:async';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:simple_pomodoro/menu_choice.dart';
-import 'package:simple_pomodoro/settings_keys.dart';
-import 'package:simple_pomodoro/timer_view_model_impl.dart';
+import 'package:simple_pomodoro/constants/settings_keys.dart';
+import 'package:simple_pomodoro/model/menu_choice.dart';
+import 'package:simple_pomodoro/viewmodels/timer_view_model_impl.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -137,47 +137,56 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     // The Flutter framework has been optimized to make rerunning build methods
     // fast, so that you can just rebuild anything that needs updating rather
     // than having to individually change instances of widgets.
-    return new Scaffold(
-      appBar: new AppBar(
-        title: new Text(widget.title),
-        actions: <Widget>[
-          // action button
-          PopupMenuButton<Choice>(
-            onSelected: _select,
-            itemBuilder: (BuildContext context) {
-              return choices.map((Choice choice) {
-                return PopupMenuItem<Choice>(
-                  value: choice,
-                  child: Text(choice.title),
-                );
-              }).toList();
-            },
-          ),
-        ],
+    return Container(
+      decoration: BoxDecoration(
+        image: DecorationImage(
+          image: AssetImage("assets/bg.jpg"),
+          fit: BoxFit.cover,
+        ),
       ),
-      body: new Center(
-        child: new Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            new Text(
-              '$timeInWidget',
-              style: Theme.of(context).textTheme.display1,
-            ),
-            new Expanded(
-              child: new ListView.builder(
-                itemCount: pomodoroFinishedItems.length,
-                itemBuilder: (BuildContext ctxt, int index) {
-                  return new Text(pomodoroFinishedItems[index]);
-                },
-              ),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(widget.title),
+          actions: <Widget>[
+            // action button
+            PopupMenuButton<Choice>(
+              onSelected: _select,
+              itemBuilder: (BuildContext context) {
+                return choices.map((Choice choice) {
+                  return PopupMenuItem<Choice>(
+                    value: choice,
+                    child: Text(choice.title),
+                  );
+                }).toList();
+              },
             ),
           ],
         ),
-      ),
-      floatingActionButton: new FloatingActionButton(
-        child: iconTimer,
-        onPressed: _actionTimer,
-        tooltip: 'Start/Stop timer',
+        backgroundColor: Colors.transparent,
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Text(
+                '$timeInWidget',
+                style: Theme.of(context).textTheme.headline4,
+              ),
+              Expanded(
+                child: ListView.builder(
+                  itemCount: pomodoroFinishedItems.length,
+                  itemBuilder: (BuildContext ctxt, int index) {
+                    return Text(pomodoroFinishedItems[index]);
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+        floatingActionButton: FloatingActionButton(
+          child: iconTimer,
+          onPressed: _actionTimer,
+          tooltip: 'Start/Stop timer',
+        ),
       ),
     );
   }
@@ -212,6 +221,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   void makeNoise() {
     debugPrint("zzzzz");
     player.play(SettingsKeys.defaultAlarmAudioPath);
+    player.fixedPlayer.pause();
   }
 
   void showPomodoroList(String event) {

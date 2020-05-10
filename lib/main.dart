@@ -16,8 +16,7 @@ class MyApp extends StatelessWidget {
     return new MaterialApp(
       title: 'Pomodoro',
       theme: new ThemeData(
-        primarySwatch: Colors.blue,
-      ),
+          primarySwatch: Colors.blue, backgroundColor: Colors.transparent),
       home: new MyHomePage(),
       routes: {
         '/settings': (context) => SettingsPage(),

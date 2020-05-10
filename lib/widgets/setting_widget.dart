@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:simple_pomodoro/setting.dart';
-import 'package:simple_pomodoro/setting_saver.dart';
+import 'package:simple_pomodoro/interfaces/setting_saver.dart';
+import 'package:simple_pomodoro/model/setting.dart';
 
 abstract class SettingWidget extends StatefulWidget {
   final Setting setting;

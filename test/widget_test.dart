@@ -8,15 +8,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:simple_pomodoro/main.dart';
-import 'package:simple_pomodoro/timer_view_model_impl.dart';
+import 'package:simple_pomodoro/viewmodels/timer_view_model_impl.dart';
 
 void main() {
-
-  testWidgets('Test on load timer is set to initial value', (WidgetTester tester) async {
+  testWidgets('Test on load timer is set to initial value',
+      (WidgetTester tester) async {
     await tester.pumpWidget(new MyApp());
 
-    String whatToExpect = DateFormat.ms().format(new DateTime
-        .fromMicrosecondsSinceEpoch(TimerViewModelImpl.pomodoroSize.inMicroseconds));
+    String whatToExpect = DateFormat.ms().format(
+        new DateTime.fromMicrosecondsSinceEpoch(
+            TimerViewModelImpl.pomodoroSize.inMicroseconds));
     expect(find.text(whatToExpect), findsOneWidget);
     expect(find.byIcon(Icons.alarm), findsOneWidget);
   });

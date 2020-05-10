@@ -2,9 +2,9 @@ import 'dart:async';
 
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:simple_pomodoro/timer_view_model.dart';
+import 'package:simple_pomodoro/interfaces/timer_view_model.dart';
 
-import 'settings_keys.dart';
+import '../constants/settings_keys.dart';
 
 class TimerViewModelImpl implements TimerViewModel {
   static const oneSec = const Duration(seconds: 1);
