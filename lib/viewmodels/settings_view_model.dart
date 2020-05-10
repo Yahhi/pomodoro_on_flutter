@@ -22,65 +22,56 @@ class SettingsViewModel implements SettingSaver {
     "60 min"
   ];
 
-  StreamController<List<String>> _actualSettingValues;
-  Map<String, Setting> settings;
+  final _actualSettingValues = StreamController<List<Setting>>();
+  Stream<List<Setting>> get actualSettings => _actualSettingValues.stream;
+  var settings = <Setting>[];
 
   SettingsViewModel() {
-    settings = new Map();
-    _actualSettingValues = new StreamController();
-
-    Setting intervalLength = new Setting(
-        SettingsKeys.KEY_POMODORO_SIZE,
-        "Pomodoro interval",
-        Setting.TYPE_SELECT,
-        "${SettingsKeys.defaultIntervalSizeInMinutes} min",
-        possibleOptions: intervalOptions);
-    settings[SettingsKeys.KEY_POMODORO_SIZE] = intervalLength;
-
-    Setting melody = new Setting(
-        SettingsKeys.KEY_ALARM_MELODY,
-        "Finishing melody",
-        Setting.TYPE_SELECT,
-        SettingsKeys.defaultAlarmAudioPath,
-        possibleOptions: melodyOptions);
-    settings[SettingsKeys.KEY_ALARM_MELODY] = melody;
-
-    Setting interruptions = new Setting(SettingsKeys.KEY_INTERRUPTIONS_ENABLED,
-        "Interruptions", Setting.TYPE_SWITCH, SettingsKeys.enabledText,
-        possibleOptions: interruptionOptions);
-    settings[SettingsKeys.KEY_INTERRUPTIONS_ENABLED] = interruptions;
-
     _getSettingsValues();
   }
 
   void _getSettingsValues() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    int valuePomodoroSize = prefs.getInt(SettingsKeys.KEY_POMODORO_SIZE) ??
+
+    final intervalLength = Setting(
+        SettingsKeys.KEY_POMODORO_SIZE,
+        "Pomodoro interval",
+        Setting.TYPE_SELECT,
+        "${SettingsKeys.defaultIntervalSizeInMinutes} min",
+        possibleOptions: intervalOptions);
+    final valuePomodoroSize = prefs.getInt(SettingsKeys.KEY_POMODORO_SIZE) ??
         SettingsKeys.defaultIntervalSizeInMinutes;
-    String valueAlarmMelody = prefs.getString(SettingsKeys.KEY_ALARM_MELODY) ??
+    intervalLength.value = "$valuePomodoroSize min";
+    settings.add(intervalLength);
+
+    final melody = Setting(SettingsKeys.KEY_ALARM_MELODY, "Finishing melody",
+        Setting.TYPE_SELECT, SettingsKeys.defaultAlarmAudioPath,
+        possibleOptions: melodyOptions);
+    melody.value = prefs.getString(SettingsKeys.KEY_ALARM_MELODY) ??
         SettingsKeys.defaultAlarmAudioPath;
-    bool interruptionsEnabled =
+    settings.add(melody);
+
+    Setting interruptions = new Setting(SettingsKeys.KEY_INTERRUPTIONS_ENABLED,
+        "Interruptions", Setting.TYPE_SWITCH, SettingsKeys.enabledText,
+        possibleOptions: interruptionOptions);
+    final interruptionsEnabled =
         prefs.getBool(SettingsKeys.KEY_INTERRUPTIONS_ENABLED) ??
             SettingsKeys.defaultInterruptionEnabled;
+    interruptions.value = interruptionsEnabled
+        ? SettingsKeys.enabledText
+        : SettingsKeys.disabledText;
+    settings.add(interruptions);
 
-    _actualSettingValues
-        .add([SettingsKeys.KEY_POMODORO_SIZE, "$valuePomodoroSize min"]);
-    _actualSettingValues.add([SettingsKeys.KEY_ALARM_MELODY, valueAlarmMelody]);
-    _actualSettingValues.add([
-      SettingsKeys.KEY_INTERRUPTIONS_ENABLED,
-      interruptionsEnabled
-          ? SettingsKeys.enabledText
-          : SettingsKeys.disabledText
-    ]);
+    _actualSettingValues.add(settings);
   }
-
-  Stream<List<String>> get actualSettings => _actualSettingValues.stream;
 
   @override
   void saveSetting(String key, String newValue) {
     print("saving key: $key, value: $newValue");
     _saveSettingToPreferences(key, newValue);
-    _actualSettingValues.add([key, newValue]);
+    final editedSetting = settings.firstWhere((element) => element.key == key);
+    editedSetting.value = newValue;
+    _actualSettingValues.add(settings);
   }
 
   void _saveSettingToPreferences(String key, String newValue) async {
