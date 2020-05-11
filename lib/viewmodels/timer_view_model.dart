@@ -137,5 +137,6 @@ class TimerViewModel {
 
   void _loadSavedIntervals() async {
     _savedIntervals = await StorageProvider().getAllIntervals();
+    _finishedPomodoros.add(_savedIntervals);
   }
 }
