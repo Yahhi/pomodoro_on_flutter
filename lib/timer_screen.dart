@@ -64,19 +64,18 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   void informTimerFinished(bool finished) {
-    if (finished != null) {
-      if (finished) {
-        if (_notification == null) {
-          makeNoise();
-        } else {
-          switch (_notification.index) {
-            case 0: // resumed
-              makeNoise();
-              break;
-            default:
-              _showNotification();
-              break;
-          }
+    print('timer is finished $finished');
+    if (finished != null && finished) {
+      if (_notification == null) {
+        makeNoise();
+      } else {
+        switch (_notification.index) {
+          case 0: // resumed
+            makeNoise();
+            break;
+          default:
+            _showNotification();
+            break;
         }
       }
     }
@@ -217,7 +216,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   }
 
   void makeNoise() {
-    debugPrint("zzzzz");
+    print("zzzzz");
     player.play(SettingsKeys.defaultAlarmAudioPath);
   }
 }

@@ -80,6 +80,7 @@ class TimerViewModel {
   }
 
   void _handleTimerEnd() {
+    print('handleTimerEnd');
     _timerIsEnded.add(true);
     _timerStateActive.add(false);
     _timeSubscription = null;
