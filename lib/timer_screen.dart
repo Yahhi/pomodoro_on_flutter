@@ -12,15 +12,6 @@ import 'package:simple_pomodoro/viewmodels/timer_view_model.dart';
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
 
-  // This widget is the home page of your application. It is stateful, meaning
-  // that it has a State object (defined below) that contains fields that affect
-  // how it looks.
-
-  // This class is the configuration for the state. It holds the values (in this
-  // case the title) provided by the parent (in this case the App widget) and
-  // used by the build method of the State. Fields in a Widget subclass are
-  // always marked "final".
-
   final String title = "Pomodoro timer";
 
   @override
@@ -40,8 +31,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     const Choice(title: 'Settings', icon: Icons.settings),
   ];
 
-  String timeInWidget = "";
-  static AudioCache player = new AudioCache();
+  final player = AudioCache();
   TimerViewModel viewModel = TimerViewModel();
 
   @override
@@ -50,7 +40,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     super.initState();
     viewModel.timerIsActive.listen(_setIconForButton);
     viewModel.timeIsOver.listen(informTimerFinished);
-    viewModel.timeTillEndReadable.listen(secondChanger);
     WidgetsBinding.instance.addObserver(this);
     // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     var initializationSettingsAndroid =
@@ -90,14 +79,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           }
         }
       }
-    }
-  }
-
-  void secondChanger(String timeString) {
-    if (timeString != null) {
-      setState(() {
-        timeInWidget = timeString;
-      });
     }
   }
 
@@ -157,11 +138,26 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              Text(
-                '$timeInWidget',
-                style: Theme.of(context).textTheme.headline4,
+              Expanded(
+                flex: 2,
+                child: Center(
+                  child: StreamBuilder<String>(
+                    stream: viewModel.timeTillEndReadable,
+                    initialData: '00:00',
+                    builder: (context, snapshot) {
+                      return Text(
+                        snapshot.data,
+                        style: TextStyle(
+                            color: Colors.white,
+                            fontFamily: 'Watch',
+                            fontSize: 70),
+                      );
+                    },
+                  ),
+                ),
               ),
               Expanded(
+                flex: 1,
                 child: StreamBuilder<List<SavedInterval>>(
                   stream: viewModel.finishedPomodoros,
                   initialData: [],
@@ -170,9 +166,12 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       itemCount: snapshot.data.length,
                       itemBuilder: (BuildContext ctxt, int index) {
                         final now = snapshot.data[index].started;
-                        return Text(DateFormat.yMd().format(now) +
-                            " " +
-                            DateFormat.Hm().format(now));
+                        return Text(
+                          DateFormat.yMd().format(now) +
+                              " " +
+                              DateFormat.Hm().format(now),
+                          style: TextStyle(color: Colors.white),
+                        );
                       },
                     );
                   },
@@ -220,6 +219,5 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
   void makeNoise() {
     debugPrint("zzzzz");
     player.play(SettingsKeys.defaultAlarmAudioPath);
-    player.fixedPlayer.pause();
   }
 }

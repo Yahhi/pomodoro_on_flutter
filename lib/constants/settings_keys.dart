@@ -4,7 +4,7 @@ class SettingsKeys {
   static const KEY_INTERRUPTIONS_ENABLED = "interupt_enabled";
 
   static const defaultIntervalSizeInMinutes = 25;
-  static const defaultAlarmAudioPath = "assets/sound_alarm.mp3";
+  static const defaultAlarmAudioPath = "sound_alarm.mp3";
   static const defaultInterruptionEnabled = true;
 
   static const enabledText = "Pomodoro can be paused";
