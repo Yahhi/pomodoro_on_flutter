@@ -3,9 +3,11 @@ import 'dart:async';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:intl/intl.dart';
 import 'package:simple_pomodoro/constants/settings_keys.dart';
 import 'package:simple_pomodoro/model/menu_choice.dart';
-import 'package:simple_pomodoro/viewmodels/timer_view_model_impl.dart';
+import 'package:simple_pomodoro/model/saved_interval.dart';
+import 'package:simple_pomodoro/viewmodels/timer_view_model.dart';
 
 class MyHomePage extends StatefulWidget {
   MyHomePage({Key key}) : super(key: key);
@@ -40,12 +42,7 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   String timeInWidget = "";
   static AudioCache player = new AudioCache();
-  TimerViewModelImpl viewModel;
-  List<String> pomodoroFinishedItems = [];
-
-  _MyHomePageState() {
-    viewModel = new TimerViewModelImpl();
-  }
+  TimerViewModel viewModel = TimerViewModel();
 
   @override
   initState() {
@@ -54,7 +51,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     viewModel.timerIsActive.listen(_setIconForButton);
     viewModel.timeIsOver.listen(informTimerFinished);
     viewModel.timeTillEndReadable.listen(secondChanger);
-    viewModel.finishedPomodoros.listen(showPomodoroList);
     WidgetsBinding.instance.addObserver(this);
     // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     var initializationSettingsAndroid =
@@ -131,12 +127,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    // This method is rerun every time setState is called, for instance as done
-    // by the _incrementCounter method above.
-    //
-    // The Flutter framework has been optimized to make rerunning build methods
-    // fast, so that you can just rebuild anything that needs updating rather
-    // than having to individually change instances of widgets.
     return Container(
       decoration: BoxDecoration(
         image: DecorationImage(
@@ -172,10 +162,19 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                 style: Theme.of(context).textTheme.headline4,
               ),
               Expanded(
-                child: ListView.builder(
-                  itemCount: pomodoroFinishedItems.length,
-                  itemBuilder: (BuildContext ctxt, int index) {
-                    return Text(pomodoroFinishedItems[index]);
+                child: StreamBuilder<List<SavedInterval>>(
+                  stream: viewModel.finishedPomodoros,
+                  initialData: [],
+                  builder: (context, snapshot) {
+                    return ListView.builder(
+                      itemCount: snapshot.data.length,
+                      itemBuilder: (BuildContext ctxt, int index) {
+                        final now = snapshot.data[index].started;
+                        return Text(DateFormat.yMd().format(now) +
+                            " " +
+                            DateFormat.Hm().format(now));
+                      },
+                    );
                   },
                 ),
               ),
@@ -222,11 +221,5 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
     debugPrint("zzzzz");
     player.play(SettingsKeys.defaultAlarmAudioPath);
     player.fixedPlayer.pause();
-  }
-
-  void showPomodoroList(String event) {
-    setState(() {
-      pomodoroFinishedItems.add(event);
-    });
   }
 }

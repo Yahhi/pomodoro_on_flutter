@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/intl.dart';
 import 'package:simple_pomodoro/main.dart';
-import 'package:simple_pomodoro/viewmodels/timer_view_model_impl.dart';
+import 'package:simple_pomodoro/viewmodels/timer_view_model.dart';
 
 void main() {
   testWidgets('Test on load timer is set to initial value',
@@ -17,7 +17,7 @@ void main() {
 
     String whatToExpect = DateFormat.ms().format(
         new DateTime.fromMicrosecondsSinceEpoch(
-            TimerViewModelImpl.pomodoroSize.inMicroseconds));
+            TimerViewModel.pomodoroSize.inMicroseconds));
     expect(find.text(whatToExpect), findsOneWidget);
     expect(find.byIcon(Icons.alarm), findsOneWidget);
   });

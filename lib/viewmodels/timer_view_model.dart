@@ -2,36 +2,37 @@ import 'dart:async';
 
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:simple_pomodoro/interfaces/timer_view_model.dart';
+import 'package:simple_pomodoro/model/saved_interval.dart';
+import 'package:simple_pomodoro/providers/storage_provider.dart';
 
 import '../constants/settings_keys.dart';
 
-class TimerViewModelImpl implements TimerViewModel {
+class TimerViewModel {
   static const oneSec = const Duration(seconds: 1);
   static const Duration pomodoroSizeDefault =
       const Duration(minutes: SettingsKeys.defaultIntervalSizeInMinutes);
   static Duration pomodoroSize = pomodoroSizeDefault;
 
   Stream<DateTime> _timer;
-  StreamController<String> _timeFormatted =
+  final StreamController<String> _timeFormatted =
       StreamController<String>.broadcast();
-  StreamController<bool> _timerStateActive;
-  StreamController<bool> _timerIsEnded;
+  final StreamController<bool> _timerStateActive = StreamController();
+  final StreamController<bool> _timerIsEnded = StreamController();
   StreamSubscription _timeSubscription;
-  StreamController<String> _finishedPomodoros;
+  final StreamController<List<SavedInterval>> _finishedPomodoros =
+      StreamController();
+  DateTime _started;
+  var _savedIntervals = <SavedInterval>[];
 
-  TimerViewModelImpl() {
-    _timerStateActive = new StreamController();
+  TimerViewModel() {
     _timerStateActive.add(false);
-    _timerIsEnded = new StreamController();
-    _timeFormatted = new StreamController();
-    _finishedPomodoros = new StreamController();
 
     DateTime pomodoroTime = new DateTime.fromMicrosecondsSinceEpoch(
         pomodoroSizeDefault.inMicroseconds);
     _timeFormatted.add(DateFormat.ms().format(pomodoroTime));
 
     _getDefaultPomodoroValue();
+    _loadSavedIntervals();
   }
 
   Stream<DateTime> timedCounter(Duration interval, Duration maxCount) {
@@ -44,15 +45,17 @@ class TimerViewModelImpl implements TimerViewModel {
       counter = counter.subtract(oneSec);
       controller.add(counter); // Ask stream to send counter values as event.
       if (counter.millisecondsSinceEpoch == 0) {
-        DateTime now = new DateTime.now();
-        _finishedPomodoros.add(
-            DateFormat.yMd().format(now) + " " + DateFormat.Hm().format(now));
+        final interval = SavedInterval(25, 0, _started);
+        StorageProvider().insertInterval(interval);
+        _savedIntervals.add(interval);
+        _finishedPomodoros.add(_savedIntervals);
         timer.cancel();
         controller.close(); // Ask stream to shut down and tell listeners.
       }
     }
 
     void startTimer() {
+      _started = DateTime.now();
       timer = Timer.periodic(interval, tick);
     }
 
@@ -112,11 +115,10 @@ class TimerViewModelImpl implements TimerViewModel {
     return _timerStateActive.stream;
   }
 
-  @override
   Stream<String> get timeTillEndReadable => _timeFormatted.stream;
 
-  @override
-  Stream<String> get finishedPomodoros => _finishedPomodoros.stream;
+  Stream<List<SavedInterval>> get finishedPomodoros =>
+      _finishedPomodoros.stream;
 
   void _getDefaultPomodoroValue() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -131,5 +133,9 @@ class TimerViewModelImpl implements TimerViewModel {
 
   void updateSettings() {
     _getDefaultPomodoroValue();
+  }
+
+  void _loadSavedIntervals() async {
+    _savedIntervals = await StorageProvider().getAllIntervals();
   }
 }
