@@ -3,47 +3,35 @@ import 'dart:async';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:intl/intl.dart';
 import 'package:simple_pomodoro/constants/settings_keys.dart';
-import 'package:simple_pomodoro/model/menu_choice.dart';
 import 'package:simple_pomodoro/model/saved_interval.dart';
 import 'package:simple_pomodoro/viewmodels/timer_view_model.dart';
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key}) : super(key: key);
+class TimerPage extends StatefulWidget {
+  TimerPage({Key key}) : super(key: key);
 
   final String title = "Pomodoro timer";
 
   @override
-  _MyHomePageState createState() => new _MyHomePageState();
+  _TimerPageState createState() => new _TimerPageState();
 }
 
-class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
-  static const iconCancel = Icons.cancel;
-  static const iconStart = Icons.alarm;
+class _TimerPageState extends State<TimerPage> with WidgetsBindingObserver {
   FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin;
-
-  Icon iconTimerStart = new Icon(iconStart);
-  Icon iconTimerPause = new Icon(iconCancel);
-  Icon iconTimer;
-
-  static const List<Choice> choices = const <Choice>[
-    const Choice(title: 'Settings', icon: Icons.settings),
-  ];
 
   final player = AudioCache();
   TimerViewModel viewModel = TimerViewModel();
 
   @override
   initState() {
-    iconTimer = iconTimerStart;
     super.initState();
-    viewModel.timerIsActive.listen(_setIconForButton);
     viewModel.timeIsOver.listen(informTimerFinished);
     WidgetsBinding.instance.addObserver(this);
     // initialise the plugin. app_icon needs to be a added as a drawable resource to the Android head project
     var initializationSettingsAndroid =
-        new AndroidInitializationSettings('alarm');
+        new AndroidInitializationSettings('app_icon');
     var initializationSettingsIOS = new IOSInitializationSettings();
     var initializationSettings = new InitializationSettings(
         initializationSettingsAndroid, initializationSettingsIOS);
@@ -93,18 +81,6 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
         payload: 'item x');
   }
 
-  void _setIconForButton(bool started) {
-    if (started != null) {
-      setState(() {
-        if (started) {
-          iconTimer = iconTimerPause;
-        } else {
-          iconTimer = iconTimerStart;
-        }
-      });
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -114,33 +90,16 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
           fit: BoxFit.cover,
         ),
       ),
-      child: Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title),
-          actions: <Widget>[
-            // action button
-            PopupMenuButton<Choice>(
-              onSelected: _select,
-              itemBuilder: (BuildContext context) {
-                return choices.map((Choice choice) {
-                  return PopupMenuItem<Choice>(
-                    value: choice,
-                    child: Text(choice.title),
-                  );
-                }).toList();
-              },
-            ),
-          ],
-        ),
-        backgroundColor: Colors.transparent,
-        body: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Expanded(
-                flex: 2,
-                child: Center(
-                  child: StreamBuilder<String>(
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Expanded(
+              flex: 2,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  StreamBuilder<String>(
                     stream: viewModel.timeTillEndReadable,
                     initialData: '00:00',
                     builder: (context, snapshot) {
@@ -153,46 +112,47 @@ class _MyHomePageState extends State<MyHomePage> with WidgetsBindingObserver {
                       );
                     },
                   ),
-                ),
+                  StreamBuilder<bool>(
+                    stream: viewModel.timerIsActive,
+                    initialData: false,
+                    builder: (context, snapshot) {
+                      return FloatingActionButton(
+                        child: Icon(snapshot.data
+                            ? FontAwesomeIcons.pause
+                            : FontAwesomeIcons.play),
+                        onPressed: _actionTimer,
+                        tooltip: 'Start/Stop timer',
+                      );
+                    },
+                  ),
+                ],
               ),
-              Expanded(
-                flex: 1,
-                child: StreamBuilder<List<SavedInterval>>(
-                  stream: viewModel.finishedPomodoros,
-                  initialData: [],
-                  builder: (context, snapshot) {
-                    return ListView.builder(
-                      itemCount: snapshot.data.length,
-                      itemBuilder: (BuildContext ctxt, int index) {
-                        final now = snapshot.data[index].started;
-                        return Text(
-                          DateFormat.yMd().format(now) +
-                              " " +
-                              DateFormat.Hm().format(now),
-                          style: TextStyle(color: Colors.white),
-                        );
-                      },
-                    );
-                  },
-                ),
+            ),
+            Expanded(
+              flex: 1,
+              child: StreamBuilder<List<SavedInterval>>(
+                stream: viewModel.finishedPomodoros,
+                initialData: [],
+                builder: (context, snapshot) {
+                  return ListView.builder(
+                    itemCount: snapshot.data.length,
+                    itemBuilder: (BuildContext ctxt, int index) {
+                      final now = snapshot.data[index].started;
+                      return Text(
+                        DateFormat.yMd().format(now) +
+                            " " +
+                            DateFormat.Hm().format(now),
+                        style: TextStyle(color: Colors.white),
+                      );
+                    },
+                  );
+                },
               ),
-            ],
-          ),
-        ),
-        floatingActionButton: FloatingActionButton(
-          child: iconTimer,
-          onPressed: _actionTimer,
-          tooltip: 'Start/Stop timer',
+            ),
+          ],
         ),
       ),
     );
-  }
-
-  void _select(Choice choice) async {
-    if (choice.title == "Settings") {
-      await Navigator.of(context).pushNamed("/settings");
-      viewModel.updateSettings();
-    }
   }
 
   void _actionTimer() {

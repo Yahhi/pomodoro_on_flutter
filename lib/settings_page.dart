@@ -16,22 +16,17 @@ class _SettingsPageState extends State<SettingsPage>
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Settings'),
-      ),
-      body: Center(
-        child: StreamBuilder<List<Setting>>(
-          stream: viewModel.actualSettings,
-          initialData: [],
-          builder: (context, snapshot) {
-            return Column(
-              children: viewModel.settings
-                  .map((setting) => getAppropriateWidget(setting.key, setting))
-                  .toList(),
-            );
-          },
-        ),
+    return SafeArea(
+      child: StreamBuilder<List<Setting>>(
+        stream: viewModel.actualSettings,
+        initialData: [],
+        builder: (context, snapshot) {
+          return Column(
+            children: viewModel.settings
+                .map((setting) => getAppropriateWidget(setting.key, setting))
+                .toList(),
+          );
+        },
       ),
     );
   }
